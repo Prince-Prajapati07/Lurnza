@@ -7,7 +7,8 @@ const {userModel} = require("../db");  // Correct import using destructuring
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 
-const {JWT_USER_PASSWORD} = require("../config.js")
+const {JWT_USER_PASSWORD} = require("../config.js");
+const { usermiddleware } = require("../middlewares/user.js");
 userRouter.post("/signup", async function(req,res){
     try {
         const {email, password, firstname, lastname} = req.body;
@@ -64,9 +65,9 @@ userRouter.post("/signin", async function(req,res){
         }
     });
 
-userRouter.get("/purchases", async function(req,res){
+userRouter.get("/purchases",usermiddleware, async function(req,res){
     try {
-        // Add your purchases logic here
+        //we assume that all our courses on the app are free.
         res.json({
             message: "Purchases retrieved successfully"
         });
