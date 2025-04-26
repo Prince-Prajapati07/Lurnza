@@ -3,7 +3,7 @@
 
 const {Router} = require("express");
 const userRouter = Router();
-const {userModel} = require("../db");  // Correct import using destructuring
+const {userModel,purchaseModel} = require("../db");  // Correct import using destructuring
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 
@@ -66,17 +66,25 @@ userRouter.post("/signin", async function(req,res){
     });
 
 userRouter.get("/purchases",usermiddleware, async function(req,res){
-    try {
-        //we assume that all our courses on the app are free.
-        res.json({
-            message: "Purchases retrieved successfully"
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: "Error retrieving purchases",
-            error: error.message
-        });
+    const userId = req.userId;
+
+    const purchases = await purchaseModel.find({
+        userId
+    })
+    let purchasedcourseId = [];
+
+    for(let i = 0;i< purchases.length; i++){
+        purchasedcourseId.push(purchases[i].courseId)
     }
+
+    const courseData = await courseModel.find({
+        _id : {$in : purchasedcourseId}
+    })
+
+    res.json({
+        purchases,
+        courseData
+    })
 });
 
 module.exports = {
